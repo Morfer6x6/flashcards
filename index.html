@@ -10,26 +10,55 @@
   <main>
     <h1>Flashcards</h1>
 
-    <form id="card-form" novalidate>
-      <div class="field">
-        <label for="question">Question</label>
-        <input type="text" id="question" name="question" autocomplete="off">
+    <section id="list-view">
+      <form id="card-form" novalidate>
+        <div class="field">
+          <label for="question">Question</label>
+          <input type="text" id="question" name="question" autocomplete="off">
+        </div>
+
+        <div class="field">
+          <label for="answer">Answer</label>
+          <input type="text" id="answer" name="answer" autocomplete="off">
+        </div>
+
+        <button type="submit">Add card</button>
+
+        <p id="form-error" class="error" role="alert"></p>
+      </form>
+
+      <section id="card-list-section">
+        <div class="section-header">
+          <h2>Your cards</h2>
+          <button type="button" id="review-button">Review</button>
+        </div>
+        <p id="empty-message">No cards yet. Add your first card above.</p>
+        <ul id="card-list"></ul>
+      </section>
+    </section>
+
+    <section id="review-view" class="hidden">
+      <div class="review-header" id="review-header">
+        <p id="review-progress"></p>
+        <button type="button" id="quit-button" class="secondary">Quit review</button>
       </div>
 
-      <div class="field">
-        <label for="answer">Answer</label>
-        <input type="text" id="answer" name="answer" autocomplete="off">
+      <button type="button" id="review-card" class="review-card">
+        <span id="review-question"></span>
+        <span id="review-answer" class="review-answer hidden"></span>
+      </button>
+
+      <p id="flip-hint" class="hint">Click the card or press Space to flip.</p>
+
+      <div id="mark-buttons" class="hidden">
+        <button type="button" id="known-button">Known</button>
+        <button type="button" id="learning-button" class="secondary">Still learning</button>
       </div>
 
-      <button type="submit">Add card</button>
-
-      <p id="form-error" class="error" role="alert"></p>
-    </form>
-
-    <section id="card-list-section">
-      <h2>Your cards</h2>
-      <p id="empty-message">No cards yet. Add your first card above.</p>
-      <ul id="card-list"></ul>
+      <div id="review-summary" class="hidden">
+        <p id="summary-text"></p>
+        <button type="button" id="exit-button">Back to cards</button>
+      </div>
     </section>
   </main>
 

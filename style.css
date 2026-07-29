@@ -74,6 +74,11 @@ button:hover {
   background: #2f6fdc;
 }
 
+button:focus-visible {
+  outline: 2px solid #3f83f8;
+  outline-offset: 2px;
+}
+
 .error {
   margin: 0.75rem 0 0;
   min-height: 1.5rem;
@@ -113,6 +118,107 @@ button:hover {
   font-style: italic;
 }
 
+/* Utility class — !important so it still wins against the display rules below
+   (.review-answer, #mark-buttons, .review-card all set their own display). */
 .hidden {
-  display: none;
+  display: none !important;
+}
+
+/* --- Review mode --- */
+
+.section-header,
+.review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.section-header h2 {
+  margin: 0;
+}
+
+#card-list-section .section-header {
+  margin-bottom: 0.75rem;
+}
+
+button:disabled {
+  background: #cbd2d9;
+  cursor: not-allowed;
+}
+
+button.secondary {
+  color: #1f2933;
+  background: #e4e7eb;
+}
+
+button.secondary:hover {
+  background: #cbd2d9;
+}
+
+#review-progress {
+  margin: 0;
+  color: #52606d;
+  font-size: 0.875rem;
+}
+
+/* Overrides the global blue button styling — this one is a card, not an action. */
+.review-card {
+  display: block;
+  width: 100%;
+  min-height: 9rem;
+  margin: 0.75rem 0;
+  padding: 1.5rem;
+  font: inherit;
+  color: #1f2933;
+  text-align: center;
+  background: #fff;
+  border: 1px solid #e4e7eb;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+}
+
+.review-card:hover {
+  background: #fff;
+  border-color: #cbd2d9;
+}
+
+#review-question {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.review-answer {
+  display: block;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  color: #52606d;
+  border-top: 1px solid #e4e7eb;
+}
+
+.hint {
+  margin: 0;
+  color: #52606d;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+#mark-buttons {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+#mark-buttons button {
+  flex: 1;
+}
+
+#review-summary {
+  text-align: center;
+}
+
+#summary-text {
+  margin: 1rem 0;
 }
