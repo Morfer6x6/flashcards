@@ -425,7 +425,8 @@ function renderReviewCard() {
 }
 
 function flipCard() {
-  if (isFlipped) {
+  // Also guards the summary, where reviewIndex has run past the end of the queue.
+  if (isFlipped || reviewIndex >= reviewQueue.length) {
     return;
   }
 
