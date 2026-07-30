@@ -8,10 +8,13 @@
   --text-muted: #52606d;
   --border: #e4e7eb;
   --input-border: #cbd2d9;
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
+  /* Pure black, which is what the browser default gave inputs before dark
+     mode made an explicit colour necessary. */
+  --input-text: #000000;
+  --accent: #3f83f8;
+  --accent-hover: #2f6fdc;
   --accent-text: #ffffff;
-  --focus-ring: #2563eb;
+  --focus-ring: #3f83f8;
   --secondary-bg: #e4e7eb;
   --secondary-hover: #cbd2d9;
   --secondary-text: #1f2933;
@@ -20,7 +23,9 @@
   --danger-text: #ffffff;
   --error-text: #c81e1e;
   --disabled-bg: #cbd2d9;
-  --disabled-text: #52606d;
+  /* White on grey, as the light theme had before dark mode: the original
+     button:disabled set only a background and inherited the button's colour. */
+  --disabled-text: #ffffff;
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   color-scheme: light;
 }
@@ -37,6 +42,7 @@
     --text-muted: #a3adba;
     --border: #2b3444;
     --input-border: #3d4859;
+    --input-text: #e8ecf1;
     --accent: #3b82f6;
     --accent-hover: #60a5fa;
     --accent-text: #0b1220;
@@ -62,6 +68,7 @@
   --text-muted: #a3adba;
   --border: #2b3444;
   --input-border: #3d4859;
+  --input-text: #e8ecf1;
   --accent: #3b82f6;
   --accent-hover: #60a5fa;
   --accent-text: #0b1220;
@@ -137,7 +144,7 @@ input[type="text"] {
   width: 100%;
   padding: 0.5rem 0.625rem;
   font: inherit;
-  color: var(--text);
+  color: var(--input-text);
   border: 1px solid var(--input-border);
   border-radius: 4px;
   background: var(--surface);
