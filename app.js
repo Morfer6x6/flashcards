@@ -1,4 +1,4 @@
-/* Flashcards — add cards, list them, review them, keep them in localStorage. */
+/* Flashcards — add, edit, delete, and review cards, persisted in localStorage. */
 
 const STORAGE_KEY = 'flashcards';
 
@@ -35,6 +35,10 @@ let isFlipped = false;
 let knownCount = 0;
 let learningCount = 0;
 
+// List state — at most one card is being edited or awaiting delete confirmation.
+let editingIndex = null;
+let pendingDeleteIndex = null;
+
 function loadCards() {
   let stored;
   try {
@@ -69,49 +73,257 @@ function clearError() {
   errorMessage.textContent = '';
 }
 
+// Shared by the add form and the per-card edit form so both reject the same way.
+function validateCardFields(question, answer) {
+  if (!question && !answer) {
+    return { message: 'Please fill in both a question and an answer.', field: 'question' };
+  }
+
+  if (!question) {
+    return { message: 'Please fill in the question.', field: 'question' };
+  }
+
+  if (!answer) {
+    return { message: 'Please fill in the answer.', field: 'answer' };
+  }
+
+  return null;
+}
+
+/* --- List --- */
+
 function render() {
   cardList.textContent = '';
 
-  cards.forEach(function (card) {
-    const item = document.createElement('li');
-    item.className = 'card';
-
-    const question = document.createElement('p');
-    question.className = 'card-question';
-    question.textContent = card.question;
-
-    const answer = document.createElement('p');
-    answer.className = 'card-answer';
-    answer.textContent = card.answer;
-
-    item.appendChild(question);
-    item.appendChild(answer);
-    cardList.appendChild(item);
+  cards.forEach(function (card, index) {
+    cardList.appendChild(
+      index === editingIndex ? buildEditRow(card, index) : buildCardRow(card, index)
+    );
   });
 
   emptyMessage.classList.toggle('hidden', cards.length > 0);
   reviewButton.disabled = cards.length === 0;
 }
 
+function buildCardRow(card, index) {
+  const item = document.createElement('li');
+  item.className = 'card';
+
+  const question = document.createElement('p');
+  question.className = 'card-question';
+  question.textContent = card.question;
+
+  const answer = document.createElement('p');
+  answer.className = 'card-answer';
+  answer.textContent = card.answer;
+
+  item.appendChild(question);
+  item.appendChild(answer);
+  item.appendChild(
+    index === pendingDeleteIndex ? buildDeleteConfirm(index) : buildCardActions(index)
+  );
+
+  return item;
+}
+
+function buildCardActions(index) {
+  const actions = document.createElement('div');
+  actions.className = 'card-actions';
+
+  const editButton = document.createElement('button');
+  editButton.type = 'button';
+  editButton.className = 'small secondary';
+  editButton.textContent = 'Edit';
+  editButton.addEventListener('click', function () {
+    startEdit(index);
+  });
+
+  const deleteButton = document.createElement('button');
+  deleteButton.type = 'button';
+  deleteButton.className = 'small secondary';
+  deleteButton.textContent = 'Delete';
+  deleteButton.addEventListener('click', function () {
+    requestDelete(index);
+  });
+
+  actions.appendChild(editButton);
+  actions.appendChild(deleteButton);
+  return actions;
+}
+
+// Inline two-step confirmation, rather than window.confirm, so nothing is
+// deleted on a single click and the page never blocks on a modal dialog.
+function buildDeleteConfirm(index) {
+  const wrap = document.createElement('div');
+  wrap.className = 'card-confirm';
+
+  const prompt = document.createElement('p');
+  prompt.className = 'confirm-text';
+  prompt.textContent = 'Delete this card? This cannot be undone.';
+
+  const actions = document.createElement('div');
+  actions.className = 'card-actions';
+
+  const confirmButton = document.createElement('button');
+  confirmButton.type = 'button';
+  confirmButton.className = 'small danger';
+  confirmButton.textContent = 'Yes, delete';
+  confirmButton.addEventListener('click', function () {
+    confirmDelete(index);
+  });
+
+  const cancelButton = document.createElement('button');
+  cancelButton.type = 'button';
+  cancelButton.className = 'small secondary cancel-delete';
+  cancelButton.textContent = 'Cancel';
+  cancelButton.addEventListener('click', cancelDelete);
+
+  actions.appendChild(confirmButton);
+  actions.appendChild(cancelButton);
+  wrap.appendChild(prompt);
+  wrap.appendChild(actions);
+  return wrap;
+}
+
+function buildEditField(labelText, value, id) {
+  const field = document.createElement('div');
+  field.className = 'field';
+
+  const label = document.createElement('label');
+  label.setAttribute('for', id);
+  label.textContent = labelText;
+
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.id = id;
+  input.value = value;
+  input.autocomplete = 'off';
+
+  field.appendChild(label);
+  field.appendChild(input);
+  return { field: field, input: input };
+}
+
+function buildEditRow(card, index) {
+  const item = document.createElement('li');
+  item.className = 'card';
+
+  // A real form, so Enter saves the edit just as it adds a card above.
+  const editForm = document.createElement('form');
+  editForm.className = 'card-edit';
+  editForm.noValidate = true;
+
+  const questionField = buildEditField('Question', card.question, 'edit-question');
+  const answerField = buildEditField('Answer', card.answer, 'edit-answer');
+
+  const error = document.createElement('p');
+  error.className = 'error';
+  error.setAttribute('role', 'alert');
+
+  const actions = document.createElement('div');
+  actions.className = 'card-actions';
+
+  const saveButton = document.createElement('button');
+  saveButton.type = 'submit';
+  saveButton.className = 'small';
+  saveButton.textContent = 'Save';
+
+  const cancelButton = document.createElement('button');
+  cancelButton.type = 'button';
+  cancelButton.className = 'small secondary';
+  cancelButton.textContent = 'Cancel';
+  cancelButton.addEventListener('click', cancelEdit);
+
+  actions.appendChild(saveButton);
+  actions.appendChild(cancelButton);
+
+  editForm.appendChild(questionField.field);
+  editForm.appendChild(answerField.field);
+  editForm.appendChild(error);
+  editForm.appendChild(actions);
+
+  editForm.addEventListener('submit', function (event) {
+    event.preventDefault();
+    saveEdit(index, questionField.input, answerField.input, error);
+  });
+
+  item.appendChild(editForm);
+  return item;
+}
+
+function startEdit(index) {
+  clearError();
+  pendingDeleteIndex = null;
+  editingIndex = index;
+  render();
+
+  const input = document.getElementById('edit-question');
+  if (input) {
+    input.focus();
+    input.select();
+  }
+}
+
+function cancelEdit() {
+  editingIndex = null;
+  render();
+  questionInput.focus();
+}
+
+function saveEdit(index, questionField, answerField, errorElement) {
+  const question = questionField.value.trim();
+  const answer = answerField.value.trim();
+  const problem = validateCardFields(question, answer);
+
+  if (problem) {
+    errorElement.textContent = problem.message;
+    (problem.field === 'answer' ? answerField : questionField).focus();
+    return;
+  }
+
+  cards[index] = { question: question, answer: answer };
+  editingIndex = null;
+  saveCards();
+  render();
+  questionInput.focus();
+}
+
+function requestDelete(index) {
+  clearError();
+  editingIndex = null;
+  pendingDeleteIndex = index;
+  render();
+
+  // Focus Cancel, not the destructive button, so a stray keypress can't delete.
+  const cancelButton = cardList.querySelector('.cancel-delete');
+  if (cancelButton) {
+    cancelButton.focus();
+  }
+}
+
+function cancelDelete() {
+  pendingDeleteIndex = null;
+  render();
+  questionInput.focus();
+}
+
+function confirmDelete(index) {
+  cards.splice(index, 1);
+  pendingDeleteIndex = null;
+  editingIndex = null;
+  saveCards();
+  render();
+  questionInput.focus();
+}
+
 function addCard() {
   const question = questionInput.value.trim();
   const answer = answerInput.value.trim();
+  const problem = validateCardFields(question, answer);
 
-  if (!question && !answer) {
-    showError('Please fill in both a question and an answer.');
-    questionInput.focus();
-    return;
-  }
-
-  if (!question) {
-    showError('Please fill in the question.');
-    questionInput.focus();
-    return;
-  }
-
-  if (!answer) {
-    showError('Please fill in the answer.');
-    answerInput.focus();
+  if (problem) {
+    showError(problem.message);
+    (problem.field === 'answer' ? answerInput : questionInput).focus();
     return;
   }
 
@@ -130,6 +342,10 @@ function startReview() {
   if (cards.length === 0) {
     return;
   }
+
+  // Leave no half-finished edit or confirmation behind for when review ends.
+  editingIndex = null;
+  pendingDeleteIndex = null;
 
   // Snapshot the cards so the queue can't shift underneath the review.
   reviewQueue = cards.slice();
