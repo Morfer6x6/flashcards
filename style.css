@@ -1,3 +1,91 @@
+/* Theme colours. Light is the default set; dark overrides them below.
+   Every rule in this file reads these variables, so the whole app restyles
+   from the data-theme attribute alone. */
+:root {
+  --bg: #f5f7fa;
+  --surface: #ffffff;
+  --text: #1f2933;
+  --text-muted: #52606d;
+  --border: #e4e7eb;
+  --input-border: #cbd2d9;
+  /* Pure black, which is what the browser default gave inputs before dark
+     mode made an explicit colour necessary. */
+  --input-text: #000000;
+  --accent: #3f83f8;
+  --accent-hover: #2f6fdc;
+  --accent-text: #ffffff;
+  --focus-ring: #3f83f8;
+  --secondary-bg: #e4e7eb;
+  --secondary-hover: #cbd2d9;
+  --secondary-text: #1f2933;
+  --danger: #c81e1e;
+  --danger-hover: #a91b1b;
+  --danger-text: #ffffff;
+  --error-text: #c81e1e;
+  --disabled-bg: #cbd2d9;
+  /* White on grey, as the light theme had before dark mode: the original
+     button:disabled set only a background and inherited the button's colour. */
+  --disabled-text: #ffffff;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  color-scheme: light;
+}
+
+/* Dark values, shared by the system preference and the explicit choice.
+   Splitting them across two selectors keeps one list of colours: the
+   :not([data-theme]) guard means a saved light choice still wins on a
+   dark-preferring device, because app.js always sets the attribute. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg: #10151c;
+    --surface: #1b2230;
+    --text: #e8ecf1;
+    --text-muted: #a3adba;
+    --border: #2b3444;
+    --input-border: #3d4859;
+    --input-text: #e8ecf1;
+    --accent: #3b82f6;
+    --accent-hover: #60a5fa;
+    --accent-text: #0b1220;
+    --focus-ring: #60a5fa;
+    --secondary-bg: #2b3444;
+    --secondary-hover: #3d4859;
+    --secondary-text: #e8ecf1;
+    --danger: #dc2626;
+    --danger-hover: #ef4444;
+    --danger-text: #ffffff;
+    --error-text: #f87171;
+    --disabled-bg: #2b3444;
+    --disabled-text: #7b8798;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --bg: #10151c;
+  --surface: #1b2230;
+  --text: #e8ecf1;
+  --text-muted: #a3adba;
+  --border: #2b3444;
+  --input-border: #3d4859;
+  --input-text: #e8ecf1;
+  --accent: #3b82f6;
+  --accent-hover: #60a5fa;
+  --accent-text: #0b1220;
+  --focus-ring: #60a5fa;
+  --secondary-bg: #2b3444;
+  --secondary-hover: #3d4859;
+  --secondary-text: #e8ecf1;
+  --danger: #dc2626;
+  --danger-hover: #ef4444;
+  --danger-text: #ffffff;
+  --error-text: #f87171;
+  --disabled-bg: #2b3444;
+  --disabled-text: #7b8798;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  color-scheme: dark;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -7,8 +95,8 @@ body {
   padding: 2rem 1rem;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   line-height: 1.5;
-  color: #1f2933;
-  background: #f5f7fa;
+  color: var(--text);
+  background: var(--bg);
 }
 
 main {
@@ -16,8 +104,16 @@ main {
   margin: 0 auto;
 }
 
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
 h1 {
-  margin-top: 0;
+  margin: 0;
   font-size: 1.75rem;
 }
 
@@ -27,10 +123,10 @@ h2 {
 }
 
 form {
-  background: #fff;
+  background: var(--surface);
   padding: 1.25rem;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow);
 }
 
 .field {
@@ -48,41 +144,71 @@ input[type="text"] {
   width: 100%;
   padding: 0.5rem 0.625rem;
   font: inherit;
-  border: 1px solid #cbd2d9;
+  color: var(--input-text);
+  border: 1px solid var(--input-border);
   border-radius: 4px;
-  background: #fff;
+  background: var(--surface);
 }
 
 input[type="text"]:focus {
-  outline: 2px solid #3f83f8;
+  outline: 2px solid var(--focus-ring);
   outline-offset: 1px;
-  border-color: #3f83f8;
+  border-color: var(--focus-ring);
 }
 
 button {
   padding: 0.5rem 1rem;
   font: inherit;
   font-weight: 600;
-  color: #fff;
-  background: #3f83f8;
+  color: var(--accent-text);
+  background: var(--accent);
   border: none;
   border-radius: 4px;
   cursor: pointer;
 }
 
 button:hover {
-  background: #2f6fdc;
+  background: var(--accent-hover);
 }
 
 button:focus-visible {
-  outline: 2px solid #3f83f8;
+  outline: 2px solid var(--focus-ring);
   outline-offset: 2px;
+}
+
+button:disabled {
+  color: var(--disabled-text);
+  background: var(--disabled-bg);
+  cursor: not-allowed;
+}
+
+button.secondary {
+  color: var(--secondary-text);
+  background: var(--secondary-bg);
+}
+
+button.secondary:hover {
+  background: var(--secondary-hover);
+}
+
+button.small {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8125rem;
+}
+
+button.danger {
+  color: var(--danger-text);
+  background: var(--danger);
+}
+
+button.danger:hover {
+  background: var(--danger-hover);
 }
 
 .error {
   margin: 0.75rem 0 0;
   min-height: 1.5rem;
-  color: #c81e1e;
+  color: var(--error-text);
   font-size: 0.875rem;
 }
 
@@ -97,10 +223,10 @@ button:focus-visible {
 }
 
 .card {
-  background: #fff;
+  background: var(--surface);
   padding: 0.875rem 1rem;
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow);
   margin-bottom: 0.75rem;
 }
 
@@ -110,7 +236,7 @@ button:focus-visible {
 
 .card-answer {
   margin: 0.25rem 0 0;
-  color: #52606d;
+  color: var(--text-muted);
 }
 
 .card-actions {
@@ -119,29 +245,15 @@ button:focus-visible {
   margin-top: 0.75rem;
 }
 
-button.small {
-  padding: 0.3rem 0.7rem;
-  font-size: 0.8125rem;
-}
-
-button.danger {
-  color: #fff;
-  background: #c81e1e;
-}
-
-button.danger:hover {
-  background: #a91b1b;
-}
-
 .card-confirm {
   margin-top: 0.75rem;
   padding-top: 0.75rem;
-  border-top: 1px solid #e4e7eb;
+  border-top: 1px solid var(--border);
 }
 
 .confirm-text {
   margin: 0 0 0.5rem;
-  color: #c81e1e;
+  color: var(--error-text);
   font-size: 0.875rem;
   font-weight: 600;
 }
@@ -164,7 +276,7 @@ button.danger:hover {
 }
 
 #empty-message {
-  color: #52606d;
+  color: var(--text-muted);
   font-style: italic;
 }
 
@@ -192,27 +304,13 @@ button.danger:hover {
   margin-bottom: 0.75rem;
 }
 
-button:disabled {
-  background: #cbd2d9;
-  cursor: not-allowed;
-}
-
-button.secondary {
-  color: #1f2933;
-  background: #e4e7eb;
-}
-
-button.secondary:hover {
-  background: #cbd2d9;
-}
-
 #review-progress {
   margin: 0;
-  color: #52606d;
+  color: var(--text-muted);
   font-size: 0.875rem;
 }
 
-/* Overrides the global blue button styling — this one is a card, not an action. */
+/* Overrides the global button styling — this one is a card, not an action. */
 .review-card {
   display: block;
   width: 100%;
@@ -220,18 +318,18 @@ button.secondary:hover {
   margin: 0.75rem 0;
   padding: 1.5rem;
   font: inherit;
-  color: #1f2933;
+  color: var(--text);
   text-align: center;
-  background: #fff;
-  border: 1px solid #e4e7eb;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow);
   cursor: pointer;
 }
 
 .review-card:hover {
-  background: #fff;
-  border-color: #cbd2d9;
+  background: var(--surface);
+  border-color: var(--input-border);
 }
 
 #review-question {
@@ -244,13 +342,13 @@ button.secondary:hover {
   display: block;
   margin-top: 1rem;
   padding-top: 1rem;
-  color: #52606d;
-  border-top: 1px solid #e4e7eb;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
 }
 
 .hint {
   margin: 0;
-  color: #52606d;
+  color: var(--text-muted);
   font-size: 0.875rem;
   text-align: center;
 }

@@ -1,7 +1,9 @@
 /* Flashcards — add, edit, delete, and review cards, persisted in localStorage. */
 
 const STORAGE_KEY = 'flashcards';
+const THEME_KEY = 'flashcards-theme';
 
+const themeButton = document.getElementById('theme-button');
 const form = document.getElementById('card-form');
 const questionInput = document.getElementById('question');
 const answerInput = document.getElementById('answer');
@@ -27,6 +29,9 @@ const summaryText = document.getElementById('summary-text');
 const exitButton = document.getElementById('exit-button');
 
 let cards = loadCards();
+
+// null means "no choice saved yet", which falls back to the system preference.
+let theme = loadTheme();
 
 // Review state — in memory only, discarded when review ends.
 let reviewQueue = [];
@@ -63,6 +68,49 @@ function saveCards() {
   } catch (err) {
     showError('Could not save your cards in this browser.');
   }
+}
+
+/* --- Theme --- */
+
+function loadTheme() {
+  let stored;
+  try {
+    stored = localStorage.getItem(THEME_KEY);
+  } catch (err) {
+    return null;
+  }
+
+  return stored === 'light' || stored === 'dark' ? stored : null;
+}
+
+function prefersDark() {
+  return typeof window.matchMedia === 'function' &&
+    window.matchMedia('(prefers-color-scheme: dark)').matches;
+}
+
+function activeTheme() {
+  return theme || (prefersDark() ? 'dark' : 'light');
+}
+
+function applyTheme() {
+  const active = activeTheme();
+  const nextLabel = active === 'dark' ? 'Light mode' : 'Dark mode';
+
+  document.documentElement.setAttribute('data-theme', active);
+  themeButton.textContent = nextLabel;
+  themeButton.setAttribute('aria-label', 'Switch to ' + nextLabel.toLowerCase());
+}
+
+function toggleTheme() {
+  theme = activeTheme() === 'dark' ? 'light' : 'dark';
+
+  try {
+    localStorage.setItem(THEME_KEY, theme);
+  } catch (err) {
+    // Keep the theme applied for this session even if it can't be saved.
+  }
+
+  applyTheme();
 }
 
 function showError(message) {
@@ -448,6 +496,7 @@ form.addEventListener('submit', function (event) {
   addCard();
 });
 
+themeButton.addEventListener('click', toggleTheme);
 reviewButton.addEventListener('click', startReview);
 reviewCard.addEventListener('click', flipCard);
 knownButton.addEventListener('click', function () {
@@ -478,5 +527,6 @@ document.addEventListener('keydown', function (event) {
   flipCard();
 });
 
+applyTheme();
 render();
 questionInput.focus();
