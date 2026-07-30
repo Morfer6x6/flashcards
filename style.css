@@ -275,6 +275,12 @@ button.danger:hover {
   display: none;
 }
 
+.stats {
+  margin: 0 0 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
 #empty-message {
   color: var(--text-muted);
   font-style: italic;

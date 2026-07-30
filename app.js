@@ -10,6 +10,7 @@ const answerInput = document.getElementById('answer');
 const errorMessage = document.getElementById('form-error');
 const cardList = document.getElementById('card-list');
 const emptyMessage = document.getElementById('empty-message');
+const statsCounter = document.getElementById('stats-counter');
 
 const listView = document.getElementById('list-view');
 const reviewView = document.getElementById('review-view');
@@ -59,6 +60,13 @@ function loadCards() {
 
   return stored.filter(function (card) {
     return card && typeof card.question === 'string' && typeof card.answer === 'string';
+  }).map(function (card) {
+    // Cards saved before the stats counter have no status; treat them as unreviewed.
+    return {
+      question: card.question,
+      answer: card.answer,
+      status: card.status === 'known' || card.status === 'learning' ? card.status : null
+    };
   });
 }
 
@@ -151,6 +159,22 @@ function render() {
 
   emptyMessage.classList.toggle('hidden', cards.length > 0);
   reviewButton.disabled = cards.length === 0;
+  renderStats();
+}
+
+// "to learn" is every card not yet marked Known, so a fresh deck reads
+// "12 cards, 12 to learn" rather than claiming there is nothing to study.
+function renderStats() {
+  const total = cards.length;
+  const toLearn = cards.filter(function (card) {
+    return card.status !== 'known';
+  }).length;
+
+  statsCounter.textContent = total + (total === 1 ? ' card' : ' cards') +
+    ', ' + toLearn + ' to learn';
+
+  // At zero cards the empty message already says everything there is to say.
+  statsCounter.classList.toggle('hidden', total === 0);
 }
 
 function buildCardRow(card, index) {
@@ -329,7 +353,8 @@ function saveEdit(index, questionField, answerField, errorElement) {
     return;
   }
 
-  cards[index] = { question: question, answer: answer };
+  // Keep the existing status: fixing a typo shouldn't discard review progress.
+  cards[index] = { question: question, answer: answer, status: cards[index].status };
   editingIndex = null;
   saveCards();
   render();
@@ -376,7 +401,7 @@ function addCard() {
   }
 
   clearError();
-  cards.push({ question: question, answer: answer });
+  cards.push({ question: question, answer: answer, status: null });
   saveCards();
   render();
 
@@ -438,6 +463,11 @@ function markCard(wasKnown) {
   if (!isFlipped) {
     return;
   }
+
+  // reviewQueue holds the same card objects as cards (slice is shallow), so
+  // marking here updates the array saveCards writes out.
+  reviewQueue[reviewIndex].status = wasKnown ? 'known' : 'learning';
+  saveCards();
 
   if (wasKnown) {
     knownCount += 1;
