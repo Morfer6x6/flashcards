@@ -33,9 +33,21 @@
       <section id="card-list-section">
         <div class="section-header">
           <h2>Your cards</h2>
-          <button type="button" id="review-button">Review</button>
+          <div class="section-actions">
+            <button type="button" id="reset-button" class="secondary">Reset progress</button>
+            <button type="button" id="review-button">Review</button>
+          </div>
         </div>
         <p id="stats-counter" class="stats" aria-live="polite"></p>
+
+        <div id="reset-confirm" class="card-confirm hidden">
+          <p id="reset-confirm-text" class="confirm-text"></p>
+          <div class="card-actions">
+            <button type="button" id="reset-confirm-button" class="small danger">Yes, reset</button>
+            <button type="button" id="reset-cancel-button" class="small secondary">Cancel</button>
+          </div>
+        </div>
+
         <p id="empty-message">No cards yet. Add your first card above.</p>
         <ul id="card-list"></ul>
       </section>

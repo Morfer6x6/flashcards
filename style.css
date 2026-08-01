@@ -322,6 +322,11 @@ button.danger:hover {
   margin: 0;
 }
 
+.section-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
 /* Progress text and the badge travel together on the left, with Quit pushed
    to the right by the header's space-between. Wrapping keeps them readable
    when a narrow screen runs out of room. */

@@ -11,6 +11,11 @@ const errorMessage = document.getElementById('form-error');
 const cardList = document.getElementById('card-list');
 const emptyMessage = document.getElementById('empty-message');
 const statsCounter = document.getElementById('stats-counter');
+const resetButton = document.getElementById('reset-button');
+const resetConfirm = document.getElementById('reset-confirm');
+const resetConfirmText = document.getElementById('reset-confirm-text');
+const resetConfirmButton = document.getElementById('reset-confirm-button');
+const resetCancelButton = document.getElementById('reset-cancel-button');
 
 const listView = document.getElementById('list-view');
 const reviewView = document.getElementById('review-view');
@@ -42,9 +47,11 @@ let isFlipped = false;
 let knownCount = 0;
 let learningCount = 0;
 
-// List state — at most one card is being edited or awaiting delete confirmation.
+// List state — at most one card is being edited or awaiting delete confirmation,
+// and the deck-wide reset confirmation is mutually exclusive with both.
 let editingIndex = null;
 let pendingDeleteIndex = null;
+let pendingReset = false;
 
 function loadCards() {
   let stored;
@@ -161,6 +168,17 @@ function render() {
   emptyMessage.classList.toggle('hidden', cards.length > 0);
   reviewButton.disabled = cards.length === 0;
   renderStats();
+  renderResetControls();
+}
+
+// Nothing to reset until at least one card has been marked either way.
+function renderResetControls() {
+  const total = cards.length;
+
+  resetButton.disabled = countReviewed() === 0;
+  resetConfirm.classList.toggle('hidden', !pendingReset);
+  resetConfirmText.textContent = 'Reset progress on all ' + total +
+    (total === 1 ? ' card' : ' cards') + '? This cannot be undone.';
 }
 
 // Counted from the cards themselves rather than from a running tally, so
@@ -168,6 +186,12 @@ function render() {
 function countKnown() {
   return cards.filter(function (card) {
     return card.status === 'known';
+  }).length;
+}
+
+function countReviewed() {
+  return cards.filter(function (card) {
+    return card.status !== null;
   }).length;
 }
 
@@ -333,6 +357,7 @@ function buildEditRow(card, index) {
 function startEdit(index) {
   clearError();
   pendingDeleteIndex = null;
+  pendingReset = false;
   editingIndex = index;
   render();
 
@@ -371,6 +396,7 @@ function saveEdit(index, questionField, answerField, errorElement) {
 function requestDelete(index) {
   clearError();
   editingIndex = null;
+  pendingReset = false;
   pendingDeleteIndex = index;
   render();
 
@@ -393,6 +419,38 @@ function confirmDelete(index) {
   editingIndex = null;
   saveCards();
   render();
+  questionInput.focus();
+}
+
+// Same two-step shape as deleting a card: nothing is lost on a single click,
+// and the question lives in the page rather than a blocking dialog.
+function requestReset() {
+  clearError();
+  editingIndex = null;
+  pendingDeleteIndex = null;
+  pendingReset = true;
+  render();
+
+  // Focus Cancel, not the destructive button, as requestDelete does.
+  resetCancelButton.focus();
+}
+
+function cancelReset() {
+  pendingReset = false;
+  render();
+  resetButton.focus();
+}
+
+function confirmReset() {
+  cards.forEach(function (card) {
+    card.status = null;
+  });
+
+  pendingReset = false;
+  saveCards();
+  render();
+
+  // Reset leaves the button disabled, so send focus somewhere usable.
   questionInput.focus();
 }
 
@@ -426,6 +484,7 @@ function startReview() {
   // Leave no half-finished edit or confirmation behind for when review ends.
   editingIndex = null;
   pendingDeleteIndex = null;
+  pendingReset = false;
 
   // Snapshot the cards so the queue can't shift underneath the review.
   reviewQueue = cards.slice();
@@ -546,6 +605,9 @@ form.addEventListener('submit', function (event) {
 
 themeButton.addEventListener('click', toggleTheme);
 reviewButton.addEventListener('click', startReview);
+resetButton.addEventListener('click', requestReset);
+resetConfirmButton.addEventListener('click', confirmReset);
+resetCancelButton.addEventListener('click', cancelReset);
 reviewCard.addEventListener('click', flipCard);
 knownButton.addEventListener('click', function () {
   markCard(true);
