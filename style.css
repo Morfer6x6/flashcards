@@ -322,14 +322,25 @@ button.danger:hover {
   margin: 0;
 }
 
-#card-list-section .section-header {
-  margin-bottom: 0.75rem;
+/* Progress text and the badge travel together on the left, with Quit pushed
+   to the right by the header's space-between. Wrapping keeps them readable
+   when a narrow screen runs out of room. */
+.review-progress-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
-#review-progress {
+/* Both badges in this row take their colour and size from .stats; only the
+   bottom margin has to go, since the row's own gap does that spacing. */
+#review-progress,
+#review-stats {
   margin: 0;
-  color: var(--text-muted);
-  font-size: 0.875rem;
+}
+
+#card-list-section .section-header {
+  margin-bottom: 0.75rem;
 }
 
 /* Overrides the global button styling — this one is a card, not an action. */

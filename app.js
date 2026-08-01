@@ -17,6 +17,7 @@ const reviewView = document.getElementById('review-view');
 const reviewButton = document.getElementById('review-button');
 const reviewHeader = document.getElementById('review-header');
 const reviewProgress = document.getElementById('review-progress');
+const reviewStats = document.getElementById('review-stats');
 const reviewCard = document.getElementById('review-card');
 const reviewQuestion = document.getElementById('review-question');
 const reviewAnswer = document.getElementById('review-answer');
@@ -162,13 +163,19 @@ function render() {
   renderStats();
 }
 
+// Counted from the cards themselves rather than from a running tally, so
+// re-marking a card that was already Known can't inflate the figure.
+function countKnown() {
+  return cards.filter(function (card) {
+    return card.status === 'known';
+  }).length;
+}
+
 // "to learn" is every card not yet marked Known, so a fresh deck reads
 // "12 cards, 12 to learn" rather than claiming there is nothing to study.
 function renderStats() {
   const total = cards.length;
-  const toLearn = cards.filter(function (card) {
-    return card.status !== 'known';
-  }).length;
+  const toLearn = total - countKnown();
 
   statsCounter.textContent = total + (total === 1 ? ' card' : ' cards') +
     ', ' + toLearn + ' to learn';
@@ -433,8 +440,17 @@ function startReview() {
   listView.classList.add('hidden');
   reviewView.classList.remove('hidden');
 
+  renderReviewStats();
   renderReviewCard();
   reviewCard.focus();
+}
+
+// Whole-deck progress, not this run's tally: the point is to see how much of
+// the deck is learned, including cards this review hasn't reached yet.
+function renderReviewStats() {
+  const known = countKnown();
+
+  reviewStats.textContent = known + ' known, ' + (cards.length - known) + ' to learn';
 }
 
 function renderReviewCard() {
@@ -469,6 +485,7 @@ function markCard(wasKnown) {
   // marking here updates the array saveCards writes out.
   reviewQueue[reviewIndex].status = wasKnown ? 'known' : 'learning';
   saveCards();
+  renderReviewStats();
 
   if (wasKnown) {
     knownCount += 1;
