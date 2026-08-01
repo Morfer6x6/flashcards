@@ -322,6 +322,21 @@ button.danger:hover {
   margin: 0;
 }
 
+/* Progress text and the badge travel together on the left, with Quit pushed
+   to the right by the header's space-between. Wrapping keeps them readable
+   when a narrow screen runs out of room. */
+.review-progress-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* The list badge needs a gap below it; here the row's own gap does that job. */
+#review-stats {
+  margin-bottom: 0;
+}
+
 #card-list-section .section-header {
   margin-bottom: 0.75rem;
 }

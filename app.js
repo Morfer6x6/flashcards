@@ -437,7 +437,6 @@ function startReview() {
   reviewSummary.classList.add('hidden');
   reviewCard.classList.remove('hidden');
   reviewHeader.classList.remove('hidden');
-  reviewStats.classList.remove('hidden');
   listView.classList.add('hidden');
   reviewView.classList.remove('hidden');
 
@@ -511,7 +510,6 @@ function showSummary() {
 
   // The summary has its own exit button, so drop the progress/Quit row entirely.
   reviewHeader.classList.add('hidden');
-  reviewStats.classList.add('hidden');
   reviewCard.classList.add('hidden');
   markButtons.classList.add('hidden');
   flipHint.classList.add('hidden');
@@ -530,7 +528,6 @@ function exitReview() {
   reviewSummary.classList.add('hidden');
   reviewCard.classList.remove('hidden');
   reviewHeader.classList.remove('hidden');
-  reviewStats.classList.remove('hidden');
   markButtons.classList.add('hidden');
   flipHint.classList.remove('hidden');
   reviewAnswer.classList.add('hidden');

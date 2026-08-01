@@ -43,11 +43,12 @@
 
     <section id="review-view" class="hidden">
       <div class="review-header" id="review-header">
-        <p id="review-progress"></p>
+        <div class="review-progress-group">
+          <p id="review-progress"></p>
+          <p id="review-stats" class="stats" aria-live="polite"></p>
+        </div>
         <button type="button" id="quit-button" class="secondary">Quit review</button>
       </div>
-
-      <p id="review-stats" class="stats" aria-live="polite"></p>
 
       <button type="button" id="review-card" class="review-card">
         <span id="review-question"></span>
