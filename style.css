@@ -7,6 +7,9 @@
   --text: #1f2933;
   --text-muted: #52606d;
   --border: #e4e7eb;
+  /* One step stronger than --border, so the stats badge keeps a visible
+     outline without going as dark as the text around it. */
+  --badge-border: #aab4c0;
   --input-border: #cbd2d9;
   /* Pure black, which is what the browser default gave inputs before dark
      mode made an explicit colour necessary. */
@@ -41,6 +44,7 @@
     --text: #e8ecf1;
     --text-muted: #a3adba;
     --border: #2b3444;
+    --badge-border: #55637a;
     --input-border: #3d4859;
     --input-text: #e8ecf1;
     --accent: #3b82f6;
@@ -67,6 +71,7 @@
   --text: #e8ecf1;
   --text-muted: #a3adba;
   --border: #2b3444;
+  --badge-border: #55637a;
   --input-border: #3d4859;
   --input-text: #e8ecf1;
   --accent: #3b82f6;
@@ -273,6 +278,23 @@ button.danger:hover {
 
 .card-edit .error:empty {
   display: none;
+}
+
+/* A raised badge rather than a control. The pill radius sets it apart from
+   every real button here (those are all 4px), and no hover state plus the
+   default cursor stop it reading as clickable. */
+.stats {
+  display: inline-block;
+  margin: 0 0 0.75rem;
+  padding: 0.3rem 0.75rem;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: var(--surface);
+  border: 1px solid var(--badge-border);
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  cursor: default;
 }
 
 #empty-message {
