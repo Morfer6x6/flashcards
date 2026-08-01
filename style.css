@@ -275,10 +275,20 @@ button.danger:hover {
   display: none;
 }
 
+/* A raised badge rather than a control. The pill radius sets it apart from
+   every real button here (those are all 4px), and no hover state plus the
+   default cursor stop it reading as clickable. */
 .stats {
+  display: inline-block;
   margin: 0 0 0.75rem;
+  padding: 0.3rem 0.75rem;
   color: var(--text-muted);
   font-size: 0.875rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  cursor: default;
 }
 
 #empty-message {
